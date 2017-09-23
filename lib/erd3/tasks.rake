@@ -4,7 +4,8 @@ load "#{spec.gem_dir}/lib/rails_erd/tasks.rake"
 
 namespace :erd3 do
   task :generate => ['erd:check_dependencies', 'erd:options', 'erd:load_models'] do
-    Erd3::Force.new.create
+    Erd3::Types::Force.new.create
+    Erd3::Types::Circle.new.create
   end
 end
 
