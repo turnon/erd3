@@ -69,5 +69,46 @@ module Erd3
   end
 
   class Force < Base
+
+    NAME = 'name'.freeze
+    DEPENDS = 'depends'.freeze
+    TYPE = 'type'.freeze
+
+    def calculate
+      dests =
+        domain.relationships.group_by(&:destination).map do |dest, srcs|
+          name = dest.model.to_s
+          {
+            name => {
+              NAME => name,
+              DEPENDS => srcs.map{ |s| s.source.model.to_s },
+              TYPE => 'group0'
+            }
+          }
+        end.reduce({}) do |rs, e|
+          rs.merge! e
+        end
+
+      models_with_src = dests.keys
+
+      models_without_src = domain.entities.reduce([]) do |rs, e|
+        model_name = e.model.to_s
+        rs << model_name if e.model != ApplicationRecord && !models_with_src.include?(model_name)
+        rs
+      end
+
+      @data =
+        models_without_src.reduce(dests) do |rs, model|
+          dests.merge!(
+            {
+              model => {
+                NAME => model,
+                DEPENDS => [],
+                TYPE => 'group0'
+              }
+            }
+          )
+        end
+    end
   end
 end
