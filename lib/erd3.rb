@@ -1,5 +1,6 @@
 require "erd3/version"
 require "erd3/base"
+require "erd3/abstract_reflection"
 require "erd3/railtie" if defined? Rails
 require "rails_erd/domain"
 require "erb"

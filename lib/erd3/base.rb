@@ -23,6 +23,17 @@ module Erd3
         end
     end
 
+    def definitions
+      @definitions ||= (
+        collection = Hash.new{ |h, k| h[k] = Hash.new{ |h, k| h[k] = [] } }
+        domain.relationships.each_with_object(collection) do |rel, coll|
+          rel.associations.each do |reflection|
+            coll[reflection.active_record.to_s][reflection.macro.to_s] << reflection.stringified_definition
+          end
+        end
+      )
+    end
+
     private
 
     def write
