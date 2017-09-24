@@ -28,9 +28,20 @@ module Erd3
         collection = Hash.new{ |h, k| h[k] = Hash.new{ |h, k| h[k] = [] } }
         domain.relationships.each_with_object(collection) do |rel, coll|
           rel.associations.each do |reflection|
-            coll[reflection.active_record.to_s][reflection.macro.to_s] << reflection.stringified_definition
+            coll[reflection.active_record.to_s][reflection.macro.to_s] << reflection
           end
         end
+      )
+    end
+
+    def file_name
+      @file_name ||= "#{self.class.to_s.sub(/.*::/, '').gsub(/(.)([A-Z])/, '\1_\2').downcase}"
+    end
+
+    def sub_template name
+      (@sub_templates ||= {})[name] ||= (
+        path = File.join __dir__, '..', 'templates', file_name, "#{name}.erb"
+        ERB.new(File.read(path))
       )
     end
 
@@ -48,10 +59,6 @@ module Erd3
 
     def output_path
       File.join Rails.root.to_s, "#{file_name}.html"
-    end
-
-    def file_name
-      @file_name ||= "#{self.class.to_s.sub(/.*::/, '').gsub(/(.)([A-Z])/, '\1_\2').downcase}"
     end
 
   end

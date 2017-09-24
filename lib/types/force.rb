@@ -39,10 +39,14 @@ module Erd3::Types
       data.each do |name, name_deps_type|
         name_deps_type[DEPENDED_ON_BY] =
           data.select{ |_, _name_deps_type| _name_deps_type[DEPENDS].include?(name) }.keys
-        name_deps_type[DOCS] = definitions[name].to_s
+        name_deps_type[DOCS] = docs(name)
       end
 
       @data = data
+    end
+
+    def docs klass_name
+      sub_template('doc').result(binding)
     end
 
   end
