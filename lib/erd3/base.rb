@@ -18,8 +18,9 @@ module Erd3
 
     def models_without_src
       @models_without_src ||=
-        domain.entities.select do |e|
-          e.model != ApplicationRecord && !models_with_src.include?(e.model)
+        domain.entities.reduce([]) do |rs, e|
+          rs << e.model if e.model != ApplicationRecord && !models_with_src.include?(e.model)
+          rs
         end
     end
 

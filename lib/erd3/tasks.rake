@@ -9,10 +9,16 @@ namespace :erd3 do
     end
   end
 
-  task :generate => ['patch', 'erd:options', 'erd:load_models'] do
+  task :assign_source_location do
+    ActiveRecord::Base.descendants.each do |klass|
+      klass.source_location = ActiveSupport::Dependencies.loaded_model_paths[klass.name.underscore]
+    end
+  end
+
+  task :generate_ => ['patch', 'erd:options', 'erd:load_models', 'assign_source_location'] do
     Erd3::Types::Force.new.create
     Erd3::Types::Circle.new.create
   end
 end
 
-task :erd3 => "erd3:generate"
+task :erd3 => "erd3:generate_"

@@ -15,7 +15,7 @@ module Erd3::Types
             name => {
               NAME => name,
               DEPENDS => relations.map{ |rel| rel.source.model.to_s },
-              TYPE => 'group0'
+              TYPE => dest.model.source_dir
             }
           }
         end.reduce({}) do |rs, e|
@@ -30,7 +30,7 @@ module Erd3::Types
               name => {
                 NAME => name,
                 DEPENDS => [],
-                TYPE => 'group0'
+                TYPE => model.source_dir
               }
             }
           )
