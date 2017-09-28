@@ -5,7 +5,7 @@ module Erd3::Types
     IMPORTS = "imports".freeze
 
     def calculate
-      dests = domain.relationships.group_by(&:destination).map do |dest, srcs|
+      dests = effective_relationships.group_by(&:destination).map do |dest, srcs|
         {NAME => dest.model.to_s, IMPORTS => srcs.map{ |s| s.source.model.to_s }}
       end
 

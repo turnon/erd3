@@ -7,27 +7,35 @@ module Erd3
       @domain = RailsERD::Domain.generate
     end
 
+    def effective_relationships
+      @effective_relationships ||=
+        domain.relationships.reject do |rel|
+          rel.destination.model.nil? || rel.source.model.nil?
+        end.each_with_object({}) do |rel, rs|
+          rs[[rel.destination.model, rel.source.model]] = rel
+        end.values
+    end
+
     def create
       calculate
       write
     end
 
     def models_with_src
-      @models_with_src ||= domain.relationships.map{ |r| r.destination.model }.uniq!
+      @models_with_src ||= effective_relationships.map{ |r| r.destination.model }.uniq!
     end
 
     def models_without_src
       @models_without_src ||=
-        domain.entities.reduce([]) do |rs, e|
-          rs << e.model if e.model != ApplicationRecord && !models_with_src.include?(e.model)
-          rs
+        domain.entities.each_with_object([]) do |e, rs|
+          rs << e.model if e.model && !models_with_src.include?(e.model)
         end
     end
 
     def definitions
       @definitions ||= (
-        collection = Hash.new{ |h, k| h[k] = Hash.new{ |h, k| h[k] = [] } }
-        domain.relationships.each_with_object(collection) do |rel, coll|
+        collection = Hash.new{ |h, k| h[k] = Hash.new{ |h, k| h[k] = Set.new } }
+        effective_relationships.each_with_object(collection) do |rel, coll|
           rel.associations.each do |reflection|
             coll[reflection.active_record.to_s][reflection.macro.to_s] << reflection
           end

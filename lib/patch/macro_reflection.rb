@@ -1,4 +1,4 @@
-class ActiveRecord::Reflection::AbstractReflection
+class ActiveRecord::Reflection::MacroReflection
   def stringified_definition
     "#{macro} :#{name}#{refl_opts_str}"
   end
