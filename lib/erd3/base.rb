@@ -16,6 +16,20 @@ module Erd3
         end.values
     end
 
+    def models
+      @models ||=
+        domain.entities.each_with_object([]) do |e, rs|
+          rs << e.model if e.model
+        end
+    end
+
+    def source_dirs
+      @source_dirs ||=
+        models.each_with_object(Set.new) do |m, set|
+          set << m.source_dir
+        end.to_a
+    end
+
     def create
       calculate
       write
@@ -27,8 +41,8 @@ module Erd3
 
     def models_without_src
       @models_without_src ||=
-        domain.entities.each_with_object([]) do |e, rs|
-          rs << e.model if e.model && !models_with_src.include?(e.model)
+        models.each_with_object([]) do |m, rs|
+          rs << m if !models_with_src.include?(m)
         end
     end
 
