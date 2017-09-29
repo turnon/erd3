@@ -9,7 +9,7 @@ module Erd3::Types
 
     def calculate
       dests =
-        domain.relationships.group_by(&:destination).map do |dest, relations|
+        effective_relationships.group_by(&:destination).map do |dest, relations|
           name = dest.model.to_s
           {
             name => {
