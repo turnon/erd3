@@ -4,10 +4,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta charset="utf-8">
     <style>
+#doc {
+  background-color: #f9f9f9;
+  border: 2px solid #f9f9f9;
+  width: calc(100% - 1024px - 30px);
+  height: 710px;
+  font-size: small;
+  float: left;
+  padding: 0 10px 10px 10px;
+  overflow-y: auto;
+}
+
 #d3_selectable_force_directed_graph svg {
-    border: 1px solid;
-    font: 13px sans-serif;
-    text-anchor: end;
+  border: 2px solid #f9f9f9;
+  font: 13px sans-serif;
+  text-anchor: end;
 }
 
 #d3_selectable_force_directed_graph .node {
@@ -39,9 +50,10 @@
   </head>
   <body>
     <div align='center' id="d3_selectable_force_directed_graph"
-      style="width: 1024px; height: 720px; margin: auto; margin-bottom: 12px">
+      style="width: 1024px; height: 720px; margin: auto; margin-bottom: 12px; float: left;">
       <svg/>
     </div>
+    <div id='doc'></div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script>
 (function (global, factory) {
@@ -856,6 +868,8 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
         d.fx = d.x;
         d.fy = d.y;
       })
+
+      document.getElementById('doc').innerHTML = d.doc;
     }
 
     function dragged(d) {
