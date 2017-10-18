@@ -27,7 +27,7 @@
 }
 
 .node .selected {
-  stroke: black;
+  stroke: grey;
 }
 
 .node .not_selected {
@@ -39,11 +39,25 @@
 }
 
 .link .selected {
-  stroke: black;
+  stroke: grey;
 }
 
 .link .not_selected {
   opacity: 0.1;
+}
+
+.node text {
+  display: none;
+}
+
+.node .selected text {
+  display: block;
+  stroke: none;
+  fill: darkgrey;
+}
+
+.node .selected text:hover {
+  fill: black;
 }
     </style>
     </style>
@@ -675,31 +689,42 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
         .enter().append("line")
         .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-    var node = gDraw.append("g")
+    var gnode = gDraw.append("g")
         .attr("class", "node")
         .selectAll("circle")
         .data(graph.nodes)
-        .enter().append("circle")
+        .enter().append("g")
+        .call(d3v4.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+    var node = gnode
+        .append("circle")
         .attr("r", 5)
         .attr("fill", function(d) {
             if ('color' in d)
                 return d.color;
             else
                 return color(d.group);
-        })
-        .call(d3v4.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended));
+        });
 
     // add titles for mouseover blurbs
-    node.append("title")
-        .text(function(d) {
-            if ('name' in d)
-                return d.name;
-            else
-                return d.id;
-        });
+    var get_name = function(d) {
+          if ('name' in d)
+              return d.name;
+          else
+              return d.id;
+      };
+
+    node.append("text")
+        .attr("id", function(d){return 't-' + get_name(d);})
+        .attr("font-size", ".5em")
+        .attr("font-family", "arial")
+        .text(get_name);
+
+    var texts = document.getElementsByTagName('text');
+    Array.prototype.forEach.call(texts, function(text){text.parentNode.parentNode.appendChild(text);});
 
     var simulation = d3v4.forceSimulation()
         .force("link", d3v4.forceLink()
@@ -724,6 +749,12 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
     simulation.force("link")
         .links(graph.links);
 
+    function dragText(d, x, y) {
+      var text = getText(d);
+      text.setAttribute('dx', x);
+      text.setAttribute('dy', y);
+    }
+
     function ticked() {
         // update node and line positions at every step of
         // the force simulation
@@ -734,6 +765,10 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
 
         node.attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
+
+        node.each(function(n){
+          dragText(n, n.x, n.y);
+        });
     }
 
     var brushMode = false;
@@ -755,11 +790,11 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
     }
 
     rect.on('click', () => {
-        node.each(function(d) {
+        gnode.each(function(d) {
             d.selected = false;
             d.previouslySelected = false;
         });
-        node.classed("selected not_selected", false);
+        gnode.classed("selected not_selected", false);
         link.classed("selected not_selected", false);
     });
 
@@ -769,7 +804,7 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
 
         var extent = d3v4.event.selection;
 
-        node.classed("selected", function(d) {
+        gnode.classed("selected", function(d) {
             return d.selected = d.previouslySelected ^
             (extent[0][0] <= d.x && d.x < extent[1][0]
              && extent[0][1] <= d.y && d.y < extent[1][1]);
@@ -829,6 +864,10 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
         }
     }
 
+    function getText(d){
+      return document.getElementById('t-' + d.id);
+    }
+
     function dragstarted(d) {
       if (!d3v4.event.active) simulation.alphaTarget(0.9).restart();
 
@@ -838,7 +877,7 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
 
       if (!d.selected && !shiftKey) {
           // if this node isn't selected, then we have to unselect every other node
-          node.classed("selected", function(p) { return p.selected =  p.previouslySelected = false; });
+          gnode.classed("selected", function(p) { return p.selected =  p.previouslySelected = false; });
       }
 
       link.classed('selected', function(l) {
@@ -851,19 +890,19 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
 
       d3v4.select(this).classed("selected", function(p) { d.previouslySelected = d.selected; return d.selected = true; });
 
-      node.classed('selected', function(n) {
+      gnode.classed('selected', function(n) {
         return (n.id == d.id) || connections.some(function(link){
           return link.source.id === n.id || link.target.id === n.id;
         });
       });
 
-      node.classed('not_selected', function(n) {
+      gnode.classed('not_selected', function(n) {
         return (n.id != d.id) && !connections.some(function(link){
           return link.source.id === n.id || link.target.id === n.id;
         });
       });
 
-      node.filter(function(d) { return d.selected; })
+      gnode.filter(function(d) { return d.selected; })
       .each(function(d) { //d.fixed |= 2;
         d.fx = d.x;
         d.fy = d.y;
@@ -875,7 +914,7 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
     function dragged(d) {
       //d.fx = d3v4.event.x;
       //d.fy = d3v4.event.y;
-            node.filter(function(d) { return d.selected; })
+            gnode.filter(function(d) { return d.selected; })
             .each(function(d) {
                 d.fx += d3v4.event.dx;
                 d.fy += d3v4.event.dy;
@@ -886,7 +925,7 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
       if (!d3v4.event.active) simulation.alphaTarget(0);
       d.fx = null;
       d.fy = null;
-        node.filter(function(d) { return d.selected; })
+        gnode.filter(function(d) { return d.selected; })
         .each(function(d) { //d.fixed &= ~6;
             d.fx = null;
             d.fy = null;
