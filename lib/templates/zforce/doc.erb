@@ -1,0 +1,13 @@
+<h2><%= m %></h2>
+<% definitions[m.to_s].each do |refl_type, refls| %>
+  <h3><%= refl_type %></h3>
+  <ul>
+    <% refls.each do |refl| %>
+      <li>
+        <a class="select-object" data-name="<%= refl.class_name%>">
+          <%= refl.stringified_definition %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
