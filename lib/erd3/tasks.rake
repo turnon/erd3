@@ -16,9 +16,10 @@ namespace :erd3 do
   end
 
   task :generate => ['patch', 'erd:options', 'erd:load_models', 'assign_source_location'] do
-    Erd3::Types::Zforce.new.create
+    Erd3::Types::Echarts.new.create
+    #Erd3::Types::Zforce.new.create
     #Erd3::Types::Force.new.create
-    Erd3::Types::Circle.new.create
+    #Erd3::Types::Circle.new.create
   end
 end
 
