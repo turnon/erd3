@@ -23,6 +23,31 @@ module Erd3
         end
     end
 
+    def associations_hash
+      @associations ||= (
+        effective_relationships
+        models.each_with_object({}) do |m, ms|
+          ms[m.name] = m.reflect_on_all_associations.each_with_object({}) do |rf, rfs|
+            rfs[rf.stringified_definition] = rf.association_validity
+          end
+        end
+      )
+    end
+
+    def model_attribute_names
+      @model_attribute_names ||=
+        models.each_with_object({}) do |m, ms|
+          ms[m.name] = m.human_attribute_names
+        end
+    end
+
+    def model_names
+      @model_names ||=
+        models.each_with_object({}) do |m, ms|
+          ms[m.name] = m.model_name.human
+        end
+    end
+
     def source_dirs
       @source_dirs ||=
         models.each_with_object(Set.new) do |m, set|
