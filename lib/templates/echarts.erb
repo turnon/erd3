@@ -34,7 +34,6 @@ var data = <%= @data.to_json %>;
                 }
             },
             roam: true,
-            focusNodeAdjacency: true,
             draggable: true,
             data: webkitDep.nodes.map(function (node, idx) {
                 node.id = idx;
@@ -55,6 +54,55 @@ var data = <%= @data.to_json %>;
 if (option && typeof option === "object") {
     myChart.setOption(option, true);
 }
+
+var just_clicked = null;
+
+function unfocus(dataIndex){
+  myChart.dispatchAction({
+    type: 'unfocusNodeAdjacency',
+    seriesIndex: 0,
+    dataIndex: dataIndex
+  });
+}
+
+function focus(dataIndex){
+  myChart.dispatchAction({
+    type: 'focusNodeAdjacency',
+    seriesIndex: 0,
+    dataIndex: dataIndex
+  });
+}
+
+myChart.on('mouseover', function (params){
+  if(!just_clicked) focus(params.dataIndex);
+});
+
+myChart.on('mouseout', function (params){
+  if(!just_clicked) unfocus(params.dataIndex);
+});
+
+myChart.on('mouseup', function (params){
+  if(params.dataType !== 'node') return;
+  unfocus(just_clicked);
+  just_clicked = params.dataIndex;
+  focus(params.dataIndex);
+  params.event.event.stopPropagation();
+});
+
+var body = document.querySelector('body');
+var lastX = null, lastY = null;
+
+body.addEventListener("mousedown", function(e){
+  lastX = e.offsetX;
+  lastY = e.offsetY;
+}, false);
+
+body.addEventListener("mouseup", function(e){
+  if(e.offsetX === lastX || e.offsetY === lastY){
+    if(just_clicked) unfocus(just_clicked);
+    just_clicked = null;
+  }
+}, false);
        </script>
    </body>
 </html>
