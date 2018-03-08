@@ -15,6 +15,7 @@ module ActiveRecord::Reflection
 
   [MacroReflection, ThroughReflection].each do |ref|
     ref.include StringifiedDefinition
+    ref.send :attr_accessor, :association_validity
   end
 
 end
