@@ -88,9 +88,13 @@ module Erd3
 
     def sub_template name
       (@sub_templates ||= {})[name] ||= (
-        path = File.join __dir__, '..', 'templates', file_name, "#{name}.erb"
-        ERB.new(File.read(path))
+        ERB.new(sub_plain name)
       )
+    end
+
+    def sub_plain name
+      path = File.join __dir__, '..', 'templates', file_name, "#{name}.erb"
+      File.read(path)
     end
 
     private

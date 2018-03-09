@@ -2,9 +2,23 @@
 <html style="height: 100%">
    <head>
        <meta charset="utf-8">
+       <style>
+         #panel {
+           max-height: 90%;
+           background-color: #607d8be0;
+           position: fixed;
+           top: 10px;
+           left: 10px;
+         }
+       </style>
    </head>
    <body style="height: 100%; margin: 0">
        <div id="container" style="height: 100%"></div>
+       <div id="panel"></div>
+       <script id="model" type="text/html">
+<%= sub_plain('panel') %>
+       </script>
+       <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
        <script type="text/javascript">
 var dom = document.getElementById("container");
@@ -13,6 +27,9 @@ var app = {};
 option = null;
 myChart.showLoading();
 var data = <%= @data.to_json %>;
+var model_names = <%= model_names.to_json %>;
+var model_attribute_names = <%= model_attribute_names.to_json %>;
+var associations_hash = <%= associations_hash.to_json %>;
 (function (webkitDep) {
     myChart.hideLoading();
 
@@ -88,6 +105,21 @@ function focus(dataIndex){
   });
 }
 
+var panel = document.getElementById("panel");
+var templ = _.template(document.getElementById('model').innerText);
+
+function display(i){
+  var name = data.nodes[i].name;
+  var model = {
+    name: name,
+    tr: model_names[name],
+    attrs: model_attribute_names[name],
+    assos: associations_hash[name]
+  };
+  panel.innerHTML = templ(model);
+  console.log(model, templ(model));
+}
+
 myChart.on('mouseover', function (params){
   if(params.dataType !== 'node' || just_clicked()) return;
   focus(params.dataIndex);
@@ -103,6 +135,7 @@ myChart.on('mouseup', function (params){
   if(just_clicked()) unfocus(last_clicked);
   focus(params.dataIndex);
   last_clicked = params.dataIndex;
+  display(last_clicked);
   params.event.event.stopPropagation();
 });
 
