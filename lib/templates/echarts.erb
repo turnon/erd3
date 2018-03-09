@@ -55,13 +55,28 @@ if (option && typeof option === "object") {
     myChart.setOption(option, true);
 }
 
-var just_clicked = null;
+// interact
+var left_nodes = {};
+
+data.nodes.forEach(function(e, i){
+  left_nodes[e.name] = i;
+});
+
+function left_index(i){
+  return left_nodes[data.nodes[i].name];
+}
+
+var last_clicked = null;
+
+function just_clicked(){
+  return last_clicked !== null;
+}
 
 function unfocus(dataIndex){
   myChart.dispatchAction({
     type: 'unfocusNodeAdjacency',
     seriesIndex: 0,
-    dataIndex: dataIndex
+    dataIndex: left_index(dataIndex)
   });
 }
 
@@ -69,24 +84,36 @@ function focus(dataIndex){
   myChart.dispatchAction({
     type: 'focusNodeAdjacency',
     seriesIndex: 0,
-    dataIndex: dataIndex
+    dataIndex: left_index(dataIndex)
   });
 }
 
 myChart.on('mouseover', function (params){
-  if(!just_clicked) focus(params.dataIndex);
+  if(params.dataType !== 'node' || just_clicked()) return;
+  focus(params.dataIndex);
 });
 
 myChart.on('mouseout', function (params){
-  if(!just_clicked) unfocus(params.dataIndex);
+  if(params.dataType !== 'node' || just_clicked()) return;
+  unfocus(params.dataIndex);
 });
 
 myChart.on('mouseup', function (params){
   if(params.dataType !== 'node') return;
-  unfocus(just_clicked);
-  just_clicked = params.dataIndex;
+  if(just_clicked()) unfocus(last_clicked);
   focus(params.dataIndex);
+  last_clicked = params.dataIndex;
   params.event.event.stopPropagation();
+});
+
+myChart.on('legendselectchanged', function (params){
+  var tmp = {}, i = 0;
+  data.nodes.forEach(function(e){
+    if(params.selected[data.categories[e.category].name]){
+      tmp[e.name] = i++;
+    }
+  });
+  left_nodes = tmp;
 });
 
 var body = document.querySelector('body');
@@ -99,8 +126,8 @@ body.addEventListener("mousedown", function(e){
 
 body.addEventListener("mouseup", function(e){
   if(e.offsetX === lastX || e.offsetY === lastY){
-    if(just_clicked) unfocus(just_clicked);
-    just_clicked = null;
+    if(just_clicked()) unfocus(last_clicked);
+    last_clicked = null;
   }
 }, false);
        </script>
