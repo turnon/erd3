@@ -92,8 +92,8 @@ module Erd3
       )
     end
 
-    def sub_plain name
-      path = File.join __dir__, '..', 'templates', file_name, "#{name}.erb"
+    def sub_plain name, subfix = 'erb'
+      path = File.join __dir__, '..', 'templates', file_name, "#{name}.#{subfix}"
       File.read(path)
     end
 

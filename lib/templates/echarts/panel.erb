@@ -7,6 +7,7 @@
 <ul>
 <% Object.keys(assos).forEach(function(asso){ %>
   <li <%= assos[asso] && 'title=' + '"' + assos[asso] + '"' || '' %> >
-    <%= asso %> <%= assos[asso] %>
+    <%= asso %>
   </li>
 <% }); %>
+</ul>
