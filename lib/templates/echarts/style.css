@@ -12,6 +12,11 @@
   font-size: 2em;
   border: none;
   width: -webkit-fill-available;
+  padding-left: .2em;
+}
+
+#inp::-webkit-input-placeholder {
+  color: #f0f0f0;
 }
 
 #inp:focus {
@@ -63,7 +68,7 @@ ul.search li + li {
 
 ul.search li {
   display: none;
-  padding-left: .2em;
+  padding-left: .7em;
 }
 
 ul.search li.match {

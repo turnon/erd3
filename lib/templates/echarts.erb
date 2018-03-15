@@ -9,7 +9,7 @@
    <body style="height: 100%; margin: 0">
        <div id="container" style="height: 100%"></div>
        <div id='main'>
-         <input id='inp'>
+         <input id='inp' placeholder='search'>
          <div id='panel'></div>
        </div>
        <script id="model" type="text/html">
@@ -200,7 +200,6 @@ body.addEventListener("mouseup", function(e){
     if(inp.value !== last_inp){
       last_inp = inp.value;
       mark(last_inp);
-      console.log(last_inp);
     }
     setTimeout(watch, 500);
   })();
