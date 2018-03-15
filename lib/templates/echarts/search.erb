@@ -1,0 +1,16 @@
+<ul class='search'>
+  <% Object.keys(model_names).forEach(function(name){ %>
+    <li>
+      <div class='model'><a><%= name %></a>(<a><%= model_names[name] %></a>)</div>
+      <% var attrs = model_attribute_names[name] %>
+      <% Object.keys(attrs).forEach(function(attr){ %>
+        <div class='attr'>- <a><%= attr %></a>: <a><%= attrs[attr] %></a></div>
+      <% }); %>
+      <% var assos = associations_hash[name] %>
+      <% Object.keys(assos).forEach(function(asso){ %>
+        <div class='asso'>* <a><%= asso %></a></div>
+      <% }); %>
+      <div class='more'>...<div>
+    </li>
+  <% }); %>
+</ul>

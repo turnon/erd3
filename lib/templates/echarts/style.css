@@ -1,12 +1,33 @@
-#panel {
-  max-height: 75%;
-  background-color: #00000002;;
-  position: fixed;
+#main {
+  border: solid 1px #e0e0e0;
+  position: absolute;
   top: 2.5%;
   left: 1.5%;
+  max-width: 95%;
+  box-shadow: 1px 2px 1px rgba(0,0,0,.15);
+  background-color: #ffffffee;
+}
+
+#inp {
+  font-size: 2em;
+  border: none;
+  width: -webkit-fill-available;
+}
+
+#inp:focus {
+  outline: none;
+}
+
+#inp:focus + #panel {
+  display: block;
+}
+
+#panel {
+  max-height: 60em;
   overflow-y: scroll;
   font-size: .1em;
-  box-shadow: 1px 2px 1px rgba(0,0,0,.15);
+  border-top: solid 1px #e0e0e0;
+  display: none;
 }
 
 ::-webkit-scrollbar {
@@ -25,4 +46,55 @@
 
 ::-webkit-scrollbar-thumb {
     background: #ccc
+}
+
+mark {
+  background: yellow;
+}
+
+ul.search {
+  margin: -1px 0 0 0;
+  padding: 0;
+}
+
+ul.search li + li {
+  border-top: solid 1px #f1f1f1;
+}
+
+ul.search li {
+  display: none;
+  padding-left: .2em;
+}
+
+ul.search li.match {
+  display: block;
+}
+
+ul.search div {
+  display: none;
+  font-weight: lighter;
+}
+
+ul.search div.match {
+  display: block;
+}
+
+ul.search li.match div:nth-child(1) {
+  display: block;
+}
+
+ul.search div.model {
+  font-weight: bolder;
+}
+
+ul.search div.more {
+  display: block;
+}
+
+ul.search div.attr.match ~ div.more {
+  display: none;
+}
+
+ul.search div.asso.match ~ div.more {
+  display: none;
 }

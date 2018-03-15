@@ -8,9 +8,15 @@
    </head>
    <body style="height: 100%; margin: 0">
        <div id="container" style="height: 100%"></div>
-       <div id="panel"></div>
+       <div id='main'>
+         <input id='inp'>
+         <div id='panel'></div>
+       </div>
        <script id="model" type="text/html">
 <%= sub_plain('panel') %>
+       </script>
+       <script id="search" type="text/html">
+<%= sub_plain('search') %>
        </script>
        <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
@@ -157,6 +163,49 @@ body.addEventListener("mouseup", function(e){
     last_clicked = null;
   }
 }, false);
+
+(function(){
+  var org_html = _.template(document.getElementById('search').innerText)({
+    model_names: model_names,
+    model_attribute_names: model_attribute_names,
+    associations_hash: associations_hash
+  });
+
+  function mark(kw){
+    var match_node = function(){return true;};
+    filter_kw = kw.split(/=/);
+    if(filter_kw.length === 2){
+      var filter_reg = new RegExp(filter_kw[0]);
+      match_node = function(e){return e.parentElement.className.match(filter_reg);};
+      kw = filter_kw[1];
+    }
+
+    var kw_reg = new RegExp('(' + kw.replace(/\s+/g, '.*') + ')', 'i')
+    document.querySelector('#panel').innerHTML = org_html;
+    document.querySelectorAll('#panel ul.search a').forEach(function(e){
+      if(!match_node(e)) return;
+      var result = e.innerHTML.replace(kw_reg, '<mark>$1</mark>');
+      if(e.innerHTML.length < result.length){
+        e.innerHTML = result;
+        e.parentElement.className = e.parentElement.className + ' match';
+        e.parentElement.parentElement.className = e.parentElement.parentElement.className + ' match';
+      }
+    });
+  }
+
+  var inp = document.getElementById('inp');
+  var last_inp = '';
+
+  (function watch(){
+    if(inp.value !== last_inp){
+      last_inp = inp.value;
+      mark(last_inp);
+      console.log(last_inp);
+    }
+    setTimeout(watch, 500);
+  })();
+
+})();
        </script>
    </body>
 </html>
