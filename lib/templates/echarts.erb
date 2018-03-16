@@ -171,6 +171,9 @@ body.addEventListener("mouseup", function(e){
     associations_hash: associations_hash
   });
 
+  var panel = document.querySelector('#panel');
+  panel.style['max-height'] = (window.innerHeight * 0.8) + 'px';
+
   function mark(kw){
     var match_node = function(){return true;};
     filter_kw = kw.split(/=/);
@@ -181,7 +184,7 @@ body.addEventListener("mouseup", function(e){
     }
 
     var kw_reg = new RegExp('(' + kw.replace(/\s+/g, '.*') + ')', 'i')
-    document.querySelector('#panel').innerHTML = org_html;
+    panel.innerHTML = org_html;
     document.querySelectorAll('#panel ul.search a').forEach(function(e){
       if(!match_node(e)) return;
       var result = e.innerHTML.replace(kw_reg, '<mark>$1</mark>');

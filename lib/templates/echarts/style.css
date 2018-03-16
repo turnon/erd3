@@ -23,12 +23,11 @@
   outline: none;
 }
 
-#inp:focus + #panel {
+#main:hover #panel {
   display: block;
 }
 
 #panel {
-  max-height: 60em;
   overflow-y: scroll;
   font-size: .1em;
   border-top: solid 1px #e0e0e0;
