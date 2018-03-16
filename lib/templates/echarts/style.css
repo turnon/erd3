@@ -70,6 +70,10 @@ ul.search li {
   padding-left: .7em;
 }
 
+ul.search li:hover {
+  background-color: #fafafaee;
+}
+
 ul.search li.match {
   display: block;
 }

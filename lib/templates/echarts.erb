@@ -105,21 +105,6 @@ function focus(dataIndex){
   });
 }
 
-var panel = document.getElementById("panel");
-var templ = _.template(document.getElementById('model').innerText);
-
-function display(i){
-  var name = data.nodes[i].name;
-  var model = {
-    name: name,
-    tr: model_names[name],
-    attrs: model_attribute_names[name],
-    assos: associations_hash[name]
-  };
-  panel.innerHTML = templ(model);
-  console.log(model, templ(model));
-}
-
 myChart.on('mouseover', function (params){
   if(params.dataType !== 'node' || just_clicked()) return;
   focus(params.dataIndex);
