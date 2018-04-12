@@ -105,6 +105,12 @@ function focus(dataIndex){
   });
 }
 
+function do_focus(dataIndex){
+  if(just_clicked()) unfocus(last_clicked);
+  focus(dataIndex);
+  last_clicked = dataIndex;
+}
+
 myChart.on('mouseover', function (params){
   if(params.dataType !== 'node' || just_clicked()) return;
   focus(params.dataIndex);
@@ -117,9 +123,7 @@ myChart.on('mouseout', function (params){
 
 myChart.on('mouseup', function (params){
   if(params.dataType !== 'node') return;
-  if(just_clicked()) unfocus(last_clicked);
-  focus(params.dataIndex);
-  last_clicked = params.dataIndex;
+  do_focus(params.dataIndex);
   //display(last_clicked);
   params.event.event.stopPropagation();
 });
@@ -149,6 +153,7 @@ body.addEventListener("mouseup", function(e){
   }
 }, false);
 
+// search
 (function(){
   var org_html = _.template(document.getElementById('search').innerText)({
     model_names: model_names,
@@ -192,6 +197,31 @@ body.addEventListener("mouseup", function(e){
     setTimeout(watch, 500);
   })();
 
+})();
+
+// focus on node when click search result
+(function(){
+  var search_result = document.getElementById('main');
+
+  function match_entry(entry){
+    while(true){
+      var parent = entry.parentElement;
+      var klass = parent.getAttribute('class');
+      if(klass && klass.match(/search/)) return entry;
+      if(parent.id === 'main' || parent.nodeName === 'BODY') return null;
+      entry = parent;
+    }
+  }
+
+  search_result.addEventListener('click', function(e){
+    var entry = match_entry(e.target);
+    if(entry){
+      var model = entry.querySelector('.model a').innerText;
+      var data_node = data.nodes.find(function(n){return n.name === model});
+      do_focus(data_node.id);
+    }
+    e.preventDefault();
+  });
 })();
        </script>
    </body>
