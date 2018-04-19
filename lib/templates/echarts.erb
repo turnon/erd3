@@ -79,75 +79,78 @@ function left_index(i){
   return left_nodes[data.nodes[i].name];
 }
 
-var last_clicked = null;
+// echart focus
+(function(myChart){
+  var last_clicked = null;
 
-function just_clicked(){
-  return last_clicked !== null;
-}
-
-function unfocus(dataIndex){
-  myChart.dispatchAction({
-    type: 'unfocusNodeAdjacency',
-    seriesIndex: 0,
-    dataIndex: left_index(dataIndex)
-  });
-}
-
-function focus(dataIndex){
-  myChart.dispatchAction({
-    type: 'focusNodeAdjacency',
-    seriesIndex: 0,
-    dataIndex: left_index(dataIndex)
-  });
-}
-
-function do_focus(dataIndex){
-  if(just_clicked()) unfocus(last_clicked);
-  focus(dataIndex);
-  last_clicked = dataIndex;
-}
-
-myChart.on('mouseover', function (params){
-  if(params.dataType !== 'node' || just_clicked()) return;
-  focus(params.dataIndex);
-});
-
-myChart.on('mouseout', function (params){
-  if(params.dataType !== 'node' || just_clicked()) return;
-  unfocus(params.dataIndex);
-});
-
-myChart.on('mouseup', function (params){
-  if(params.dataType !== 'node') return;
-  do_focus(params.dataIndex);
-  //display(last_clicked);
-  params.event.event.stopPropagation();
-});
-
-myChart.on('legendselectchanged', function (params){
-  var tmp = {}, i = 0;
-  data.nodes.forEach(function(e){
-    if(params.selected[data.categories[e.category].name]){
-      tmp[e.name] = i++;
-    }
-  });
-  left_nodes = tmp;
-});
-
-var body = document.querySelector('body');
-var lastX = null, lastY = null;
-
-body.addEventListener("mousedown", function(e){
-  lastX = e.offsetX;
-  lastY = e.offsetY;
-}, false);
-
-body.addEventListener("mouseup", function(e){
-  if(e.offsetX === lastX || e.offsetY === lastY){
-    if(just_clicked()) unfocus(last_clicked);
-    last_clicked = null;
+  myChart.just_clicked = function(){
+    return last_clicked !== null;
   }
-}, false);
+
+  myChart.unfocus = function(dataIndex){
+    this.dispatchAction({
+      type: 'unfocusNodeAdjacency',
+      seriesIndex: 0,
+      dataIndex: left_index(dataIndex)
+    });
+  }
+
+  myChart.focus = function(dataIndex){
+    this.dispatchAction({
+      type: 'focusNodeAdjacency',
+      seriesIndex: 0,
+      dataIndex: left_index(dataIndex)
+    });
+  }
+
+  myChart.do_focus = function(dataIndex){
+    if(this.just_clicked()) this.unfocus(last_clicked);
+    this.focus(dataIndex);
+    last_clicked = dataIndex;
+  }
+
+  myChart.on('mouseover', function (params){
+    if(params.dataType !== 'node' || this.just_clicked()) return;
+    this.focus(params.dataIndex);
+  });
+
+  myChart.on('mouseout', function (params){
+    if(params.dataType !== 'node' || this.just_clicked()) return;
+    this.unfocus(params.dataIndex);
+  });
+
+  myChart.on('mouseup', function (params){
+    if(params.dataType !== 'node') return;
+    this.do_focus(params.dataIndex);
+    //display(last_clicked);
+    params.event.event.stopPropagation();
+  });
+
+  myChart.on('legendselectchanged', function (params){
+    var tmp = {}, i = 0;
+    data.nodes.forEach(function(e){
+      if(params.selected[data.categories[e.category].name]){
+        tmp[e.name] = i++;
+      }
+    });
+    left_nodes = tmp;
+  });
+
+  var body = document.querySelector('body');
+  var lastX = null, lastY = null;
+
+  body.addEventListener("mousedown", function(e){
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+  }, false);
+
+  body.addEventListener("mouseup", function(e){
+    if(e.offsetX === lastX || e.offsetY === lastY){
+      if(myChart.just_clicked()) myChart.unfocus(last_clicked);
+      last_clicked = null;
+    }
+  }, false);
+})(myChart);
 
 // search
 (function(){
@@ -214,7 +217,7 @@ body.addEventListener("mouseup", function(e){
     if(entry){
       var model = entry.querySelector('.model a').innerText;
       var data_node = data.nodes.find(function(n){return n.name === model});
-      do_focus(data_node.id);
+      myChart.do_focus(data_node.id);
     }
     e.preventDefault();
   });
