@@ -28,6 +28,26 @@ var data = <%= @data.to_json %>;
 var model_names = <%= model_names.to_json %>;
 var model_attribute_names = <%= model_attribute_names.to_json %>;
 var associations_hash = <%= associations_hash.to_json %>;
+
+// enhance data
+(function(data){
+  // when legend changes, dataset inside echart instance chnages too
+  var left_nodes = {};
+
+  data.nodes.forEach(function(e, i){
+    left_nodes[e.name] = i;
+  });
+
+  data.left_index = function(i){
+    return left_nodes[data.nodes[i].name];
+  }
+
+  data.set_left_nodes = function(ns){
+    left_nodes = ns;
+  }
+})(data);
+
+// draw echart
 (function (webkitDep) {
     myChart.hideLoading();
 
@@ -67,17 +87,6 @@ var associations_hash = <%= associations_hash.to_json %>;
     myChart.setOption(option);
 })(data);
 
-// interact
-var left_nodes = {};
-
-data.nodes.forEach(function(e, i){
-  left_nodes[e.name] = i;
-});
-
-function left_index(i){
-  return left_nodes[data.nodes[i].name];
-}
-
 // echart focus
 (function(myChart){
   var last_clicked = null;
@@ -90,7 +99,7 @@ function left_index(i){
     this.dispatchAction({
       type: 'unfocusNodeAdjacency',
       seriesIndex: 0,
-      dataIndex: left_index(dataIndex)
+      dataIndex: data.left_index(dataIndex)
     });
   }
 
@@ -98,7 +107,7 @@ function left_index(i){
     this.dispatchAction({
       type: 'focusNodeAdjacency',
       seriesIndex: 0,
-      dataIndex: left_index(dataIndex)
+      dataIndex: data.left_index(dataIndex)
     });
   }
 
@@ -132,7 +141,7 @@ function left_index(i){
         tmp[e.name] = i++;
       }
     });
-    left_nodes = tmp;
+    data.set_left_nodes(tmp);
   });
 
   var body = document.querySelector('body');
