@@ -23,7 +23,6 @@
        <script type="text/javascript">
 var dom = document.getElementById("container");
 var myChart = echarts.init(dom, 'light');
-var app = {};
 myChart.showLoading();
 var data = <%= @data.to_json %>;
 var model_names = <%= model_names.to_json %>;
