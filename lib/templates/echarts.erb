@@ -24,13 +24,14 @@
 var dom = document.getElementById("container");
 var myChart = echarts.init(dom, 'light');
 myChart.showLoading();
-var data = <%= @data.to_json %>;
-var model_names = <%= model_names.to_json %>;
-var model_attribute_names = <%= model_attribute_names.to_json %>;
-var associations_hash = <%= associations_hash.to_json %>;
 
-// enhance data
-(function(data){
+// whole dataset
+var data = (function(){
+  var data = <%= @data.to_json %>;
+  data.model_names = <%= model_names.to_json %>;
+  data.model_attribute_names = <%= model_attribute_names.to_json %>;
+  data.associations_hash = <%= associations_hash.to_json %>;
+
   // when legend changes, dataset inside echart instance chnages too
   var left_nodes = {};
 
@@ -45,7 +46,9 @@ var associations_hash = <%= associations_hash.to_json %>;
   data.set_left_nodes = function(ns){
     left_nodes = ns;
   }
-})(data);
+
+  return data;
+})();
 
 // draw echart
 (function (webkitDep) {
@@ -163,9 +166,9 @@ var associations_hash = <%= associations_hash.to_json %>;
 // search
 (function(){
   var org_html = _.template(document.getElementById('search').innerText)({
-    model_names: model_names,
-    model_attribute_names: model_attribute_names,
-    associations_hash: associations_hash
+    model_names: data.model_names,
+    model_attribute_names: data.model_attribute_names,
+    associations_hash: data.associations_hash
   });
 
   var panel = document.querySelector('#panel');
