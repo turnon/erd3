@@ -2,21 +2,59 @@
 <html style="height: 100%">
    <head>
        <meta charset="utf-8">
+       <style>
+<%= sub_plain('style', 'css') %>
+       </style>
    </head>
    <body style="height: 100%; margin: 0">
        <div id="container" style="height: 100%"></div>
+       <div id='main'>
+         <input id='inp' placeholder='search'>
+         <div id='panel'></div>
+       </div>
+       <script id="model" type="text/html">
+<%= sub_plain('panel') %>
+       </script>
+       <script id="search" type="text/html">
+<%= sub_plain('search') %>
+       </script>
+       <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
        <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
        <script type="text/javascript">
 var dom = document.getElementById("container");
 var myChart = echarts.init(dom, 'light');
-var app = {};
-option = null;
 myChart.showLoading();
-var data = <%= @data.to_json %>;
+
+// whole dataset
+var data = (function(){
+  var data = <%= @data.to_json %>;
+  data.model_names = <%= model_names.to_json %>;
+  data.model_attribute_names = <%= model_attribute_names.to_json %>;
+  data.associations_hash = <%= associations_hash.to_json %>;
+
+  // when legend changes, dataset inside echart instance chnages too
+  var left_nodes = {};
+
+  data.nodes.forEach(function(e, i){
+    left_nodes[e.name] = i;
+  });
+
+  data.left_index = function(i){
+    return left_nodes[data.nodes[i].name];
+  }
+
+  data.set_left_nodes = function(ns){
+    left_nodes = ns;
+  }
+
+  return data;
+})();
+
+// draw echart
 (function (webkitDep) {
     myChart.hideLoading();
 
-    option = {
+    var option = {
         legend: {
           orient: 'vertical',
           top: 'center',
@@ -51,85 +89,150 @@ var data = <%= @data.to_json %>;
 
     myChart.setOption(option);
 })(data);
-if (option && typeof option === "object") {
-    myChart.setOption(option, true);
-}
 
-// interact
-var left_nodes = {};
+// echart focus
+(function(myChart){
+  var last_clicked = null;
 
-data.nodes.forEach(function(e, i){
-  left_nodes[e.name] = i;
-});
-
-function left_index(i){
-  return left_nodes[data.nodes[i].name];
-}
-
-var last_clicked = null;
-
-function just_clicked(){
-  return last_clicked !== null;
-}
-
-function unfocus(dataIndex){
-  myChart.dispatchAction({
-    type: 'unfocusNodeAdjacency',
-    seriesIndex: 0,
-    dataIndex: left_index(dataIndex)
-  });
-}
-
-function focus(dataIndex){
-  myChart.dispatchAction({
-    type: 'focusNodeAdjacency',
-    seriesIndex: 0,
-    dataIndex: left_index(dataIndex)
-  });
-}
-
-myChart.on('mouseover', function (params){
-  if(params.dataType !== 'node' || just_clicked()) return;
-  focus(params.dataIndex);
-});
-
-myChart.on('mouseout', function (params){
-  if(params.dataType !== 'node' || just_clicked()) return;
-  unfocus(params.dataIndex);
-});
-
-myChart.on('mouseup', function (params){
-  if(params.dataType !== 'node') return;
-  if(just_clicked()) unfocus(last_clicked);
-  focus(params.dataIndex);
-  last_clicked = params.dataIndex;
-  params.event.event.stopPropagation();
-});
-
-myChart.on('legendselectchanged', function (params){
-  var tmp = {}, i = 0;
-  data.nodes.forEach(function(e){
-    if(params.selected[data.categories[e.category].name]){
-      tmp[e.name] = i++;
-    }
-  });
-  left_nodes = tmp;
-});
-
-var body = document.querySelector('body');
-var lastX = null, lastY = null;
-
-body.addEventListener("mousedown", function(e){
-  lastX = e.offsetX;
-  lastY = e.offsetY;
-}, false);
-
-body.addEventListener("mouseup", function(e){
-  if(e.offsetX === lastX || e.offsetY === lastY){
-    if(just_clicked()) unfocus(last_clicked);
-    last_clicked = null;
+  myChart.just_clicked = function(){
+    return last_clicked !== null;
   }
-}, false);
+
+  myChart.unfocus = function(dataIndex){
+    this.dispatchAction({
+      type: 'unfocusNodeAdjacency',
+      seriesIndex: 0,
+      dataIndex: data.left_index(dataIndex)
+    });
+  }
+
+  myChart.focus = function(dataIndex){
+    this.dispatchAction({
+      type: 'focusNodeAdjacency',
+      seriesIndex: 0,
+      dataIndex: data.left_index(dataIndex)
+    });
+  }
+
+  myChart.do_focus = function(dataIndex){
+    if(this.just_clicked()) this.unfocus(last_clicked);
+    this.focus(dataIndex);
+    last_clicked = dataIndex;
+  }
+
+  myChart.on('mouseover', function (params){
+    if(params.dataType !== 'node' || this.just_clicked()) return;
+    this.focus(params.dataIndex);
+  });
+
+  myChart.on('mouseout', function (params){
+    if(params.dataType !== 'node' || this.just_clicked()) return;
+    this.unfocus(params.dataIndex);
+  });
+
+  myChart.on('mouseup', function (params){
+    if(params.dataType !== 'node') return;
+    this.do_focus(params.dataIndex);
+    //display(last_clicked);
+    params.event.event.stopPropagation();
+  });
+
+  myChart.on('legendselectchanged', function (params){
+    var tmp = {}, i = 0;
+    data.nodes.forEach(function(e){
+      if(params.selected[data.categories[e.category].name]){
+        tmp[e.name] = i++;
+      }
+    });
+    data.set_left_nodes(tmp);
+  });
+
+  var body = document.querySelector('body');
+  var lastX = null, lastY = null;
+
+  body.addEventListener("mousedown", function(e){
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+  }, false);
+
+  body.addEventListener("mouseup", function(e){
+    if(e.offsetX === lastX || e.offsetY === lastY){
+      if(myChart.just_clicked()) myChart.unfocus(last_clicked);
+      last_clicked = null;
+    }
+  }, false);
+})(myChart);
+
+// search
+(function(){
+  var org_html = _.template(document.getElementById('search').innerText)({
+    model_names: data.model_names,
+    model_attribute_names: data.model_attribute_names,
+    associations_hash: data.associations_hash
+  });
+
+  var panel = document.querySelector('#panel');
+  panel.style['max-height'] = (window.innerHeight * 0.8) + 'px';
+
+  function mark(kw){
+    var match_node = function(){return true;};
+    filter_kw = kw.split(/=/);
+    if(filter_kw.length === 2){
+      var filter_reg = new RegExp(filter_kw[0]);
+      match_node = function(e){return e.parentElement.className.match(filter_reg);};
+      kw = filter_kw[1];
+    }
+
+    var kw_reg = new RegExp('(' + kw.replace(/\s+/g, '.*') + ')', 'i')
+    panel.innerHTML = org_html;
+    document.querySelectorAll('#panel ul.search a').forEach(function(e){
+      if(!match_node(e)) return;
+      var result = e.innerHTML.replace(kw_reg, '<mark>$1</mark>');
+      if(e.innerHTML.length < result.length){
+        e.innerHTML = result;
+        e.parentElement.className = e.parentElement.className + ' match';
+        e.parentElement.parentElement.className = e.parentElement.parentElement.className + ' match';
+      }
+    });
+  }
+
+  var inp = document.getElementById('inp');
+  var last_inp = '';
+
+  (function watch(){
+    if(inp.value !== last_inp){
+      last_inp = inp.value;
+      mark(last_inp);
+    }
+    setTimeout(watch, 500);
+  })();
+
+})();
+
+// focus on node when click search result
+(function(){
+  var search_result = document.getElementById('main');
+
+  function match_entry(entry){
+    while(true){
+      var parent = entry.parentElement;
+      var klass = parent.getAttribute('class');
+      if(klass && klass.match(/search/)) return entry;
+      if(parent.id === 'main' || parent.nodeName === 'BODY') return null;
+      entry = parent;
+    }
+  }
+
+  search_result.addEventListener('click', function(e){
+    var entry = match_entry(e.target);
+    if(entry){
+      var model = entry.querySelector('.model a').innerText;
+      var data_node = data.nodes.find(function(n){return n.name === model});
+      myChart.do_focus(data_node.id);
+    }
+    e.preventDefault();
+  });
+})();
        </script>
    </body>
 </html>

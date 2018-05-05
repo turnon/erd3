@@ -1,0 +1,13 @@
+<%= name %>(<%= tr %>)
+<ul>
+<% Object.keys(attrs).forEach(function(attr){ %>
+  <li><%= attr %>: <%= attrs[attr] %></li>
+<% }); %>
+</ul>
+<ul>
+<% Object.keys(assos).forEach(function(asso){ %>
+  <li <%= assos[asso] && 'title=' + '"' + assos[asso] + '"' || '' %> >
+    <%= asso %>
+  </li>
+<% }); %>
+</ul>
