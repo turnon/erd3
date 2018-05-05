@@ -11,6 +11,7 @@
        <div id='main'>
          <input id='inp' placeholder='search'>
          <div id='panel'></div>
+         <div id='info'></div>
        </div>
        <script id="model" type="text/html">
 <%= sub_plain('panel') %>
@@ -163,21 +164,23 @@ var data = (function(){
   }, false);
 })(myChart);
 
+var inp = document.getElementById('inp');
+
 // display model info when click nodes
 var model_info = (function(){
   var org_html = _.template(document.getElementById('model').innerText);
-
+  var box = document.querySelector('#info');
+  box.style['max-height'] = (window.innerHeight * 0.8) + 'px';
   var obj = {};
 
   obj.display = function(model){
+	inp.value = model + '(' + data.model_names[model] +  ')';
     var info = org_html({
-	  name: model,
-	  tr: data.model_names[model],
 	  attrs: data.model_attribute_names[model],
 	  assos: data.associations_hash[model]
 	});
-    console.log(info);
-  }
+    box.innerHTML = info;
+  };
 
   return obj;
 })();
@@ -215,7 +218,6 @@ var model_info = (function(){
     });
   }
 
-  var inp = document.getElementById('inp');
   var last_inp = '';
 
   (function watch(){
