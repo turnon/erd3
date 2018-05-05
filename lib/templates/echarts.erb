@@ -133,7 +133,7 @@ var data = (function(){
   myChart.on('mouseup', function (params){
     if(params.dataType !== 'node') return;
     this.do_focus(params.dataIndex);
-    //display(last_clicked);
+    display(params.data.name);
     params.event.event.stopPropagation();
   });
 
@@ -162,6 +162,16 @@ var data = (function(){
     }
   }, false);
 })(myChart);
+
+// display model info when click nodes
+function display(model){
+  console.log(
+    model,
+    data.model_names[model],
+    data.model_attribute_names[model],
+    data.associations_hash[model]
+  );
+}
 
 // search
 (function(){
