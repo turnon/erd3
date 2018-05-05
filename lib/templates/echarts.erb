@@ -133,7 +133,7 @@ var data = (function(){
   myChart.on('mouseup', function (params){
     if(params.dataType !== 'node') return;
     this.do_focus(params.dataIndex);
-    display(params.data.name);
+    model_info.display(params.data.name);
     params.event.event.stopPropagation();
   });
 
@@ -164,14 +164,23 @@ var data = (function(){
 })(myChart);
 
 // display model info when click nodes
-function display(model){
-  console.log(
-    model,
-    data.model_names[model],
-    data.model_attribute_names[model],
-    data.associations_hash[model]
-  );
-}
+var model_info = (function(){
+  var org_html = _.template(document.getElementById('model').innerText);
+
+  var obj = {};
+
+  obj.display = function(model){
+    var info = org_html({
+	  name: model,
+	  tr: data.model_names[model],
+	  attrs: data.model_attribute_names[model],
+	  assos: data.associations_hash[model]
+	});
+    console.log(info);
+  }
+
+  return obj;
+})();
 
 // search
 (function(){
