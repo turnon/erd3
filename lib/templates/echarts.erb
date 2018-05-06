@@ -91,6 +91,8 @@ var data = (function(){
     myChart.setOption(option);
 })(data);
 
+var body = document.querySelector('body');
+
 // echart focus
 (function(myChart){
   var last_clicked = null;
@@ -148,7 +150,6 @@ var data = (function(){
     data.set_left_nodes(tmp);
   });
 
-  var body = document.querySelector('body');
   var lastX = null, lastY = null;
 
   body.addEventListener("mousedown", function(e){
@@ -174,13 +175,28 @@ var model_info = (function(){
   var obj = {};
 
   obj.display = function(model){
-	inp.value = model + '(' + data.model_names[model] +  ')';
+    inp.value = model + '(' + data.model_names[model] +  ')';
     var info = org_html({
-	  attrs: data.model_attribute_names[model],
-	  assos: data.associations_hash[model]
-	});
+      attrs: data.model_attribute_names[model],
+      assos: data.associations_hash[model]
+    });
     box.innerHTML = info;
   };
+
+  box.addEventListener("mousedown", function(e){
+    e.stopPropagation();
+  }, false);
+
+  box.addEventListener("mouseup", function(e){
+    e.stopPropagation();
+    var label = e.target;
+    if(label.nodeName !== 'LABEL') return;
+
+    document.querySelector('label.current_label').className = '';
+    document.querySelector('li.current_label').className = '';
+    label.className = 'current_label';
+    document.querySelector('#info-' + label.innerText).className = 'current_label';
+  }, false);
 
   return obj;
 })();

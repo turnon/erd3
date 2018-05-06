@@ -1,12 +1,20 @@
-<ul>
-<% Object.keys(attrs).forEach(function(attr){ %>
-  <li><%= attr %>: <%= attrs[attr] %></li>
-<% }); %>
-</ul>
-<ul>
-<% Object.keys(assos).forEach(function(asso){ %>
-  <li <%= assos[asso] && 'title=' + '"' + assos[asso] + '"' || '' %> >
-    <%= asso %>
+<label class='current_label'>assos</label>
+<label>attrs</label>
+<ul class='info'>
+  <li id='info-assos' class='current_label'>
+    <ul>
+      <% Object.keys(assos).forEach(function(asso){ %>
+        <li <%= assos[asso] && 'title=' + '"' + assos[asso] + '"' || '' %> >
+          <%= asso %>
+        </li>
+      <% }); %>
+    </ul>
   </li>
-<% }); %>
+  <li id='info-attrs'>
+    <ul>
+      <% Object.keys(attrs).forEach(function(attr){ %>
+        <li><%= attr %>: <%= attrs[attr] %></li>
+      <% }); %>
+    </ul>
+  </li>
 </ul>

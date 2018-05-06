@@ -106,3 +106,31 @@ ul.search div.attr.match ~ div.more {
 ul.search div.asso.match ~ div.more {
   display: none;
 }
+
+#main:hover #info {
+  display: block;
+}
+
+#info {
+  overflow-y: scroll;
+  font-size: .1em;
+  border-top: solid 1px #e0e0e0;
+  display: none;
+}
+
+ul.info {
+  margin: -1px 0 0 0;
+  padding: 0;
+}
+
+ul.info > li {
+  display: none;
+}
+
+label.current_label {
+  background-color: red;
+}
+
+ul.info > li.current_label {
+  display: block;
+}
