@@ -27,6 +27,10 @@
   display: block;
 }
 
+#main:hover #panel.hidden {
+  display: none;
+}
+
 #panel {
   overflow-y: scroll;
   font-size: .1em;
@@ -109,6 +113,10 @@ ul.search div.asso.match ~ div.more {
 
 #main:hover #info {
   display: block;
+}
+
+#main:hover #info.hidden {
+  display: none;
 }
 
 #info {

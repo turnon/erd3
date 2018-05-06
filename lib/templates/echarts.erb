@@ -166,11 +166,17 @@ var body = document.querySelector('body');
 })(myChart);
 
 var inp = document.getElementById('inp');
+var panel = document.querySelector('#panel');
+var box = document.querySelector('#info');
+
+function hide_and_show(e1, e2){
+  e1.className = 'hidden';
+  e2.className = '';
+}
 
 // display model info when click nodes
 var model_info = (function(){
   var org_html = _.template(document.getElementById('model').innerText);
-  var box = document.querySelector('#info');
   box.style['max-height'] = (window.innerHeight * 0.8) + 'px';
   var obj = {};
 
@@ -181,6 +187,7 @@ var model_info = (function(){
       assos: data.associations_hash[model]
     });
     box.innerHTML = info;
+    hide_and_show(panel, box);
   };
 
   box.addEventListener("mousedown", function(e){
@@ -209,7 +216,6 @@ var model_info = (function(){
     associations_hash: data.associations_hash
   });
 
-  var panel = document.querySelector('#panel');
   panel.style['max-height'] = (window.innerHeight * 0.8) + 'px';
 
   function mark(kw){
@@ -221,7 +227,7 @@ var model_info = (function(){
       kw = filter_kw[1];
     }
 
-    var kw_reg = new RegExp('(' + kw.replace(/\s+/g, '.*') + ')', 'i')
+    var kw_reg = new RegExp('(' + kw.replace(/[^\w|^\s]/g, '').replace(/\s+/g, '.*') + ')', 'i');
     panel.innerHTML = org_html;
     document.querySelectorAll('#panel ul.search a').forEach(function(e){
       if(!match_node(e)) return;
@@ -232,13 +238,15 @@ var model_info = (function(){
         e.parentElement.parentElement.className = e.parentElement.parentElement.className + ' match';
       }
     });
+    hide_and_show(box, panel);
   }
 
   var last_inp = '';
 
   (function watch(){
-    if(inp.value !== last_inp){
-      last_inp = inp.value;
+    var current_value = inp.value;
+    if(current_value !== last_inp && !current_value.match(/\(.*\)/)){
+      last_inp = current_value;
       mark(last_inp);
     }
     setTimeout(watch, 500);
