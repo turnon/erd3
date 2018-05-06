@@ -84,6 +84,7 @@ ul.search li.match {
 
 ul.search div {
   display: none;
+  padding-right: 1em;
   font-weight: lighter;
 }
 
@@ -129,7 +130,7 @@ ul.search div.asso.match ~ div.more {
 
 ul.info {
   //margin: -1px 0 0 0;
-  padding: 0;
+  padding: 0 1em 0 0;
 }
 
 ul.info > li {
