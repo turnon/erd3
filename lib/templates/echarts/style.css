@@ -114,12 +114,13 @@ ul.search div.asso.match ~ div.more {
 #info {
   overflow-y: scroll;
   font-size: .1em;
-  border-top: solid 1px #e0e0e0;
+  //border-top: solid 1px #e0e0e0;
   display: none;
+  background-color: #f1f1f1;
 }
 
 ul.info {
-  margin: -1px 0 0 0;
+  //margin: -1px 0 0 0;
   padding: 0;
 }
 
@@ -127,8 +128,17 @@ ul.info > li {
   display: none;
 }
 
+label {
+  padding: .1em .5em;
+  font-size: 9em;
+}
+
+label:nth-child(1) {
+  margin-left: .3em;
+}
+
 label.current_label {
-  background-color: red;
+  background-color: white;
 }
 
 ul.info > li.current_label {
