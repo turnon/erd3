@@ -12,7 +12,7 @@
   font-size: 2em;
   border: none;
   width: -webkit-fill-available;
-  padding-left: .2em;
+  padding: .1em 0 .2em .2em;
 }
 
 #inp::-webkit-input-placeholder {
@@ -129,8 +129,13 @@ ul.search div.asso.match ~ div.more {
 }
 
 ul.info {
-  //margin: -1px 0 0 0;
+  margin-top: .5em;
   padding: 0 1em 0 0;
+}
+
+ul.info ul {
+  list-style-type: none;
+  padding-left: 1.3em;
 }
 
 ul.info > li {
@@ -143,7 +148,7 @@ label {
 }
 
 label:nth-child(1) {
-  margin-left: .3em;
+  margin-left: .5em;
 }
 
 label.current_label {
